@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.name = 'monri'
   # TODO: add version directly to the code
   s.version = '0.1.0'
-  s.required_ruby_version = ">= 2.3.0"
+  s.required_ruby_version = '>= 2.3.0'
   s.summary = 'Ruby bindings for the Monri API'
   s.description = 'Your voyage through payment experience starts here. Learn more about how Monri helps to power your business.' \
                   'See https://monri.com for details.'

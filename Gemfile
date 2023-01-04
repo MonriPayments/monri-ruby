@@ -9,6 +9,7 @@ group :development do
   gem 'minitest'
   gem 'rack', '>= 2.0.6'
   gem 'rake'
+  gem 'm'
 
   gem 'test-unit'
 
