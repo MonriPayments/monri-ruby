@@ -16,6 +16,7 @@ require 'monri/payments'
 require 'monri/payment_methods'
 require 'monri/access_tokens'
 require 'monri/customers'
+require 'monri/response'
 require 'monri/api_http_response'
 
 module Monri

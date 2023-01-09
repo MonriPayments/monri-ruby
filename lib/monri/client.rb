@@ -12,10 +12,12 @@ module Monri
     def_delegators :@config, :merchant_key, :authenticity_token, :environment
     def_delegators :@config, :merchant_key=, :authenticity_token=, :environment=
 
+    # @return [Monri::Payments]
     def payments
       @payments ||= create_payment_api
     end
 
+    # @return [Monri::AccessTokens]
     def access_tokens
       @access_tokens ||= create_access_tokens_api
     end
@@ -25,6 +27,7 @@ module Monri
       @customers ||= create_customers_api
     end
 
+    # @return [Monri::PaymentMethods]
     def payment_methods
       @payment_methods ||= create_payment_methods_api
     end

@@ -1,10 +1,15 @@
 module Monri
   class ApiHttpResponse
 
+    # @return [Hash]
     attr_reader :body
+    # @return [String]
     attr_reader :response_body
+    # @return [Integer]
     attr_reader :code
+    # @return [Hash]
     attr_reader :headers
+    # @return [Exception]
     attr_reader :exception
 
     # @param [Net::HTTPResponse] response
@@ -27,7 +32,11 @@ module Monri
     end
 
     def success?
-      code >= 200 && code < 300
+      exception == nil && code >= 200 && code < 300
+    end
+
+    def failed?
+      exception != nil
     end
 
     private
