@@ -10,8 +10,8 @@ module Monri
 
     # @param [Hash] options
     def list(options = {})
-      access_token = @access_tokens.create(scopes: ['payment-methods'])[:access_token]
-      response = @http_client.get('/v2/payment-methods', headers: { 'Authorization' => "Bearer #{access_token}" })
+      access_token = @access_tokens.create!(scopes: ['payment-methods']).access_token
+      response = @http_client.get('/v2/payment-methods', oauth: access_token)
       if response.success?
         response.body
       else

@@ -25,7 +25,10 @@ require 'monri/transactions/transaction_response'
 require 'monri/transactions/secure_message'
 require 'monri/payments/create_response'
 require 'monri/payments/status_response'
+require 'monri/payments/payment_result'
 require 'monri/tokens/ephemeral_card_token_response'
+require 'monri/customers/create_response'
+require 'monri/access_tokens/create_response'
 require 'time'
 
 module Monri

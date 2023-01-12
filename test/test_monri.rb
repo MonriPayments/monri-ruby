@@ -17,20 +17,21 @@ class MonriTest < Minitest::Test
 
   def test_access_tokens_create
     rv = monri.access_tokens.create(scopes: ['customers'])
-    assert_equal 'approved', rv[:status]
-    assert !rv[:access_token].nil?
-    assert !rv[:token_type].nil?
-    assert !rv[:expires_in].nil?
+    assert_equal 'approved', rv.status
+    assert rv.access_token != nil
+    assert rv.token_type != nil
+    assert rv.expires_in != nil
   end
 
   def test_create_customer
     rv = monri.customers.create(email: 'email@email.com', name: 'name')
-    assert_equal 'approved', rv[:status]
-    assert_equal 'email@email.com', rv[:email]
-    assert_equal 'name', rv[:name]
-    assert rv[:uuid] != nil
-    assert rv[:created_at] != nil
-    assert rv[:updated_at] != nil
+    assert !rv.failed?
+    assert_equal 'approved', rv.status
+    assert_equal 'email@email.com', rv.email
+    assert_equal 'name', rv.name
+    assert rv.uuid != nil
+    assert rv.created_at != nil
+    assert rv.updated_at != nil
   end
 
   def test_payment_methods_list
@@ -54,6 +55,24 @@ class MonriTest < Minitest::Test
     assert response.client_secret.is_a?(String)
     assert response.id != nil
     assert response.client_secret != nil
+  end
+
+  def test_payment_status
+    response = monri.payments.create(
+      order_number: SecureRandom.hex,
+      amount: 10_00,
+      currency: 'EUR',
+      transaction_type: 'purchase'
+    )
+    assert !response.failed?
+    assert response.is_a?(Monri::Payments::CreateResponse)
+    assert response.approved?
+
+    response = monri.payments.status(response.id)
+    assert !response.failed?
+    assert response.is_a?(Monri::Payments::StatusResponse)
+    assert response.status == 'approved'
+    assert response.payment_status == 'payment_method_required'
   end
 
   def test_tokens
