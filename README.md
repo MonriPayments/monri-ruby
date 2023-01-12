@@ -79,7 +79,7 @@ monri.checkout.version = 68
 
 ### Example integration
 
-For a closer look at how our Ruby library works, clone our [example integration](https://github.com/monri-examples/monri-rails-online-payments). This includes commented code, highlighting key features and concepts, and examples of API calls that can be made using the library.
+For a closer look at how our Ruby library works, clone our [example integration](...)
 
 ### Running the tests
 To run the tests use :
@@ -87,20 +87,16 @@ To run the tests use :
 bundle install --with development 
 ~~~~
 
-## Contributing
 
-We encourage you to contribute to this repository, so everyone can benefit from new features, bug fixes, and any other improvements.
-Have a look at our [contributing guidelines](https://github.com/Monri/monri-ruby-api-library/blob/develop/CONTRIBUTING.md) to find out how to raise a pull request.
 
 ## Support
-If you have a feature request, or spotted a bug or a technical problem, [create an issue here](https://github.com/Monri/monri-ruby-api-library/issues/new/choose).
+If you have a feature request, or spotted a bug or a technical problem, [create an issue here](https://github.com/MonriPayments/monri-ruby/issues/new/choose).
 
-For other questions, [contact our Support Team](https://www.monri.help/hc/en-us/requests/new?ticket_form_id=360000705420).
+For other questions, [contact our Support Team](https://www.monri.com).
 
 ## Licence
-This repository is available under the [MIT license](https://github.com/Monri/monri-ruby-api-library/blob/main/LICENSE).
+This repository is available under the [MIT license](https://github.com/MonriPayments/monri-ruby/blob/master/LICENSE).
 
 ## See also
-* [Example integration](https://github.com/monri-examples/monri-rails-online-payments)
+* [Example integration](https://github.com/MonriPayments/monri-ruby-example)
 * [Monri docs](https://docs.monri.com/)
-* [API Explorer](https://docs.monri.com/api-explorer/)
