@@ -1,5 +1,10 @@
 module Monri
   module Errors
+
+    class InvalidArgumentsError < StandardError
+
+    end
+
     class HttpRequestError < StandardError
 
       # @return [Integer]
@@ -17,6 +22,10 @@ module Monri
         @code = options.delete(:code) || 500
         @body = options.delete(:body)
         @headers = options.delete(:headers)
+      end
+
+      def to_s
+        "#{@message}, body=#{body}, headers=#{headers}, code=#{code}"
       end
     end
   end

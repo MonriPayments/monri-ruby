@@ -9,6 +9,8 @@ group :development do
   gem 'mocha', '~> 0.13.2'
   gem 'rack', '>= 2.0.6'
   gem 'rake'
+  gem 'pry'
+  gem 'pry-byebug'
 
   gem 'test-unit'
 
@@ -18,7 +20,5 @@ group :development do
 
   platforms :mri do
     gem 'byebug'
-    gem 'pry'
-    gem 'pry-byebug'
   end
 end

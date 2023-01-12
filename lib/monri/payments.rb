@@ -11,8 +11,9 @@ module Monri
     attr_writer :access_tokens
 
     # @param [Hash] options
+    # @return [Monri::Payments::CreateResponse]
     def create(options)
-      Response.create do
+      CreateResponse.create do
         access_token = @access_tokens.create(scopes: ['payments'])[:access_token]
         response = @http_client.post('/v2/payment/new', options, headers: { 'Authorization' => "Bearer #{access_token}" })
         if response.failed?
@@ -28,7 +29,7 @@ module Monri
     # @param [String] id
     # @return [Response] id
     def status(id)
-      Response.create do
+      StatusResponse.create do
         if id.nil? || !id.is_a?(String)
           raise ArgumentError('Id should be a string')
         end

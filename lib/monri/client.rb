@@ -32,6 +32,24 @@ module Monri
       @payment_methods ||= create_payment_methods_api
     end
 
+    # @return [Monri::Tokens]
+    def tokens
+      @tokens ||= create_tokens_api
+    end
+
+    # @return [Monri::Transactions]
+    def transactions
+      @transactions ||= create_transactions_api
+    end
+
+    # @param [String] header
+    # @param [String] body
+    # @param [Hash] options
+    # @return [Hash{Symbol->String | TrueClass | FalseClass}]
+    def validate_callback(header, body, options = {})
+      create_validate_callback.validate(header, body, options)
+    end
+
     private
 
     def ensure_config_set!
@@ -41,12 +59,39 @@ module Monri
     end
 
     def http_client
-      if @http_client == nil
-        @http_client = Monri::HttpClient.new
-        @http_client.config = @config
+      if defined?(@http_client) && @http_client != nil
+        return @http_client
       end
-
+      @http_client = Monri::HttpClient.new
+      @http_client.config = @config
       @http_client
+    end
+
+    # @return [Monri::ValidateCallback]
+    def create_validate_callback
+      if @validate_callback_action != nil
+        return @validate_callback_action
+      end
+      ensure_config_set!
+      @validate_callback_action = Monri::ValidateCallback.new
+      @validate_callback_action.config = @config
+      @validate_callback_action
+    end
+
+    def create_tokens_api
+      ensure_config_set!
+      rv = Monri::Tokens.new
+      rv.config = @config
+      rv.http_client = http_client
+      rv
+    end
+
+    def create_transactions_api
+      ensure_config_set!
+      rv = Monri::Transactions.new
+      rv.config = @config
+      rv.http_client = http_client
+      rv
     end
 
     def create_customers_api

@@ -1,38 +1,27 @@
 # frozen_string_literal: true
 
 module Monri
-  class Response
-    # @return [Object]
-    attr_accessor :result
-    # @return [Exception]
-    attr_accessor :exception
+  class Response < Hash
 
-    # @return [Monri::Response]
-    # @param [Object] result
-    def self.result(result)
-      raise ArgumentError, 'Argument result is nil' if result.nil?
-
-      rv = Response.new
-      rv.result = result
-      rv
+    def initialize(params = {})
+      if params.has_key?(:exception)
+        self[:exception] = params[:exception]
+      end
+      self.merge!(params)
     end
 
-    def success?
-      exception == nil
+    # @return [Exception, NilClass]
+    def exception
+      self[:exception]
+    end
+
+    # @param [Exception] val
+    def exception=(val)
+      self[:exception] = val
     end
 
     def failed?
       exception != nil
-    end
-
-    def self.create
-      raise ArgumentError, 'Provide a block' unless block_given?
-
-      begin
-        result(yield)
-      rescue StandardError => e
-        exception(e)
-      end
     end
 
     # @param [Exception] exception

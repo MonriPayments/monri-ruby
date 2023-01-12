@@ -2,7 +2,6 @@
 
 require 'minitest/autorun'
 require 'monri'
-require 'pry'
 require 'securerandom'
 
 class MonriTest < Minitest::Test
@@ -41,14 +40,115 @@ class MonriTest < Minitest::Test
   end
 
   def test_payment_create
-    # "Order number can't be blank,Amount can't be blank,Amount is not a number,Currency can't be blank,Transaction type can't be blank"
-    response = monri.payments.create(order_number: SecureRandom.hex, amount: 10_00, currency: 'EUR', transaction_type: 'purchase')
-    result = response.result
-    assert response.success?
-    assert_equal 'approved', result[:status]
-    assert result[:id].is_a?(String)
-    assert result[:client_secret].is_a?(String)
-    assert result[:id] != nil
-    assert result[:client_secret] != nil
+    response = monri.payments.create(
+      order_number: SecureRandom.hex,
+      amount: 10_00,
+      currency: 'EUR',
+      transaction_type: 'purchase'
+    )
+    assert !response.failed?
+    assert response.is_a?(Monri::Payments::CreateResponse)
+    assert response.approved?
+    assert_equal 'approved', response.status
+    assert response.id.is_a?(String)
+    assert response.client_secret.is_a?(String)
+    assert response.id != nil
+    assert response.client_secret != nil
   end
+
+  def test_tokens
+    result = monri.tokens.create_card_token(temp_card_id: '1')
+    # binding.pry
+    assert result[:temp_card_id].is_a?(String)
+    assert_equal '1', result[:temp_card_id]
+    assert result[:timestamp].is_a?(String)
+    assert result[:digest].is_a?(String)
+  end
+
+  def test_temp_tokenize_and_authorize
+    token = monri.tokens.create_ephemeral_card_token(cvv: '111', pan: '4111111111111111', expiration_date: '2912', type: 'card')
+    assert !token.failed?
+    assert token.is_a?(Monri::Tokens::EphemeralCardTokenResponse)
+    assert token.approved?
+    assert token.id != nil
+    assert token.status != nil
+    assert token.masked_pan != nil
+    assert token.cc_type != nil
+    assert token.cc_issuer != nil
+
+    id = token.id
+
+    rv = monri.transactions.transaction(
+      amount: 200,
+      currency: 'EUR',
+      transaction_type: 'purchase',
+      order_number: SecureRandom.hex,
+      order_info: "Info #{SecureRandom.hex}",
+      ch_address: 'Address',
+      ch_city: 'Sarajevo',
+      ch_country: 'BA',
+      ch_email: 'test@monri.com',
+      ch_full_name: 'Test Test',
+      ch_phone: '+38761000111',
+      ch_zip: '71000',
+      language: 'en',
+      ip: '127.0.0.1',
+      temp_card_id: id
+    )
+    assert !rv.failed?
+
+    assert rv.is_a?(Monri::Transactions::TransactionResponse)
+    assert rv.transaction != nil
+    assert rv.secure_message == nil
+    assert rv.exception == nil
+    assert rv.transaction.is_a?(Monri::Transactions::Transaction)
+    assert rv.transaction.id != nil
+  end
+
+  def test_temp_tokenize_and_authorize_three_ds
+    token = monri.tokens.create_ephemeral_card_token(
+      cvv: '111',
+      pan: '4341 7920 0000 0044',
+      expiration_date: '3012',
+      type: 'card'
+    )
+    assert !token.failed?
+    assert token.is_a?(Monri::Tokens::EphemeralCardTokenResponse)
+    assert token.approved?
+    assert token.id != nil
+    assert token.status != nil
+    assert token.masked_pan != nil
+    assert token.cc_type != nil
+    assert token.cc_issuer != nil
+    id = token.id
+
+    rv = monri.transactions.transaction(
+      amount: 200,
+      currency: 'EUR',
+      transaction_type: 'purchase',
+      order_number: SecureRandom.hex,
+      order_info: "Info #{SecureRandom.hex}",
+      ch_address: 'Address',
+      ch_city: 'Sarajevo',
+      ch_country: 'BA',
+      ch_email: 'test@monri.com',
+      ch_full_name: 'Test Test',
+      ch_phone: '+38761000111',
+      ch_zip: '71000',
+      language: 'en',
+      ip: '127.0.0.1',
+      temp_card_id: id
+    )
+    assert !rv.failed?
+
+    assert rv.is_a?(Monri::Transactions::TransactionResponse)
+    assert rv.transaction == nil
+    assert rv.secure_message != nil
+    assert rv.exception == nil
+    assert rv.secure_message.is_a?(Monri::Transactions::SecureMessage)
+    assert rv.secure_message.id != nil
+    assert rv.secure_message.acs_url != nil
+    assert rv.secure_message.authenticity_token != nil
+  end
+
 end
