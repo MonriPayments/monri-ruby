@@ -21,4 +21,4 @@ external
 
 ## IDEs
 .idea/
-.yardoc/
+.yardoc/coverage

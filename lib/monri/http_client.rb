@@ -10,11 +10,7 @@ module Monri
     def get(url, options = {})
       # TODO: validate
       uri = build_url(url)
-      req_headers = options.delete(:headers) || {}
-      headers = {
-        'Accept': 'application/json',
-        'x-request-id': SecureRandom.hex
-      }.merge(req_headers)
+      headers = prepare_headers(options)
       # Create the HTTP objects
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
@@ -31,12 +27,7 @@ module Monri
     def post(url, body, options = {})
       # TODO: validate
       uri = build_url(url)
-      req_headers = options.delete(:headers) || {}
-      headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'x-request-id': SecureRandom.hex
-      }.merge(req_headers)
+      headers = prepare_headers(options)
       # Create the HTTP objects
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
@@ -51,6 +42,26 @@ module Monri
     # @return [URI]
     def build_url(url)
       URI.parse("#{config.base_api_url}#{url}")
+    end
+
+    private
+
+    # @param [Hash] options
+    # @return [Hash{Symbol->String}]
+    def prepare_headers(options)
+      req_headers = options.delete(:headers) || {}
+      headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'x-request-id': SecureRandom.hex
+      }
+
+      if options.has_key?(:oauth)
+        headers['Authorization'] = "Bearer #{options.delete(:oauth)}"
+      end
+
+      headers.merge!(req_headers)
+      headers
     end
 
   end

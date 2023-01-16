@@ -1,9 +1,15 @@
 module Monri
   module Errors
+
+    class InvalidArgumentsError < StandardError
+
+    end
+
     class HttpRequestError < StandardError
 
       # @return [Integer]
       attr_reader :code
+
       # @return [String, NilClass]
       attr_reader :body
 
@@ -16,7 +22,7 @@ module Monri
         super(message)
         @code = options.delete(:code) || 500
         @body = options.delete(:body)
-        @headers = options.delete(:headers)
+        @headers = options.delete(:headers) || {}
       end
     end
   end

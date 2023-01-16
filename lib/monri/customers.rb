@@ -9,16 +9,18 @@ module Monri
 
     # @param [Hash] options
     def create(options)
-      access_token = @access_tokens.create(scopes: ['customers'])[:access_token]
-      response = @http_client.post('/v2/customers', options, headers: { 'Authorization' => "Bearer #{access_token}" })
-      if response.success?
-        response.body
-      else
-        # TODO: handle this case
+      CreateResponse.create do
+        token_rv = @access_tokens.create!(scopes: ['customers'])
+        response = @http_client.post('/v2/customers', options, oauth: token_rv.access_token)
+
+        if response.failed?
+          raise response.exception
+        elsif response.success?
+          response.body
+        else
+          # TODO: handle this case
+        end
       end
-    rescue StandardError => e
-      # TODO: handle this case
-      nil
     end
   end
 end
