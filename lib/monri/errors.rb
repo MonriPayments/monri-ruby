@@ -9,6 +9,7 @@ module Monri
 
       # @return [Integer]
       attr_reader :code
+
       # @return [String, NilClass]
       attr_reader :body
 
@@ -21,11 +22,7 @@ module Monri
         super(message)
         @code = options.delete(:code) || 500
         @body = options.delete(:body)
-        @headers = options.delete(:headers)
-      end
-
-      def to_s
-        "#{@message}, body=#{body}, headers=#{headers}, code=#{code}"
+        @headers = options.delete(:headers) || {}
       end
     end
   end

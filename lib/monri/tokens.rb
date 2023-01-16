@@ -9,22 +9,8 @@ module Monri
 
     TEMP_TOKENIZE_REQUIRED_FIELDS = [:cvv, :type, :pan, :expiration_date, :temp_card_id, :digest, :timestamp]
 
-    # @param [Hash] params
-    # @return [Hash]
-    def create_card_token(params = {})
-      ensure_configured!
-
-      token = params.has_key?(:temp_card_id) ? params.delete(:temp_card_id) : SecureRandom.hex
-      timestamp = Time.now.iso8601
-      {
-        timestamp: timestamp,
-        temp_card_id: token,
-        digest: Digest::SHA512.hexdigest("#{config.merchant_key}#{token}#{timestamp}")
-      }
-    end
-
     # @note Create ephemeral (lasting for a very short time - 15minutes in this case) - token to replace card details.
-    # @note Required fields are: pan, expiration_date(YYMM), cvv, type (card). Optional fields are: tokenize_pan: bool
+    # Required fields are: pan, expiration_date(YYMM), cvv, type (card). Optional fields are: tokenize_pan: bool
     # @param [Hash] params
     def create_ephemeral_card_token(params)
 
@@ -62,6 +48,20 @@ module Monri
       if config == nil || http_client == nil
         raise Monri::Errors::InvalidArgumentsError.new('Configuration error, config or http client not set')
       end
+    end
+
+    # @param [Hash] params
+    # @return [Hash]
+    def create_card_token(params = {})
+      ensure_configured!
+
+      token = params.has_key?(:temp_card_id) ? params.delete(:temp_card_id) : SecureRandom.hex
+      timestamp = Time.now.iso8601
+      {
+        timestamp: timestamp,
+        temp_card_id: token,
+        digest: Digest::SHA512.hexdigest("#{config.merchant_key}#{token}#{timestamp}")
+      }
     end
 
   end

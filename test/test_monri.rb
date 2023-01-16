@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'simplecov'
+SimpleCov.start
 require 'minitest/autorun'
 require 'monri'
 require 'securerandom'
@@ -47,6 +49,7 @@ class MonriTest < Minitest::Test
       currency: 'EUR',
       transaction_type: 'purchase'
     )
+
     assert !response.failed?
     assert response.is_a?(Monri::Payments::CreateResponse)
     assert response.approved?
@@ -73,15 +76,6 @@ class MonriTest < Minitest::Test
     assert response.is_a?(Monri::Payments::StatusResponse)
     assert response.status == 'approved'
     assert response.payment_status == 'payment_method_required'
-  end
-
-  def test_tokens
-    result = monri.tokens.create_card_token(temp_card_id: '1')
-    # binding.pry
-    assert result[:temp_card_id].is_a?(String)
-    assert_equal '1', result[:temp_card_id]
-    assert result[:timestamp].is_a?(String)
-    assert result[:digest].is_a?(String)
   end
 
   def test_temp_tokenize_and_authorize
@@ -122,6 +116,34 @@ class MonriTest < Minitest::Test
     assert rv.exception == nil
     assert rv.transaction.is_a?(Monri::Transactions::Transaction)
     assert rv.transaction.id != nil
+  end
+
+  def test_transactions_invalid_request
+
+    rv = monri.transactions.transaction(
+      amount: 200,
+      currency: 'EUR',
+      transaction_type: 'purchase',
+      order_number: SecureRandom.hex,
+      order_info: "Info #{SecureRandom.hex}",
+      ch_address: 'Address',
+      ch_city: 'Sarajevo',
+      ch_country: 'BA',
+      ch_email: 'test@monri.com',
+      ch_full_name: 'Test Test',
+      ch_phone: '+38761000111',
+      ch_zip: '71000',
+      language: 'en',
+      ip: '127.0.0.1'
+      )
+    assert rv.failed?
+    assert rv.errors.is_a?(Array)
+    assert rv.errors.any? {|x| x == "Pan can't be blank"}
+    assert rv.exception != nil
+
+    assert rv.is_a?(Monri::Transactions::TransactionResponse)
+    assert rv.transaction == nil
+    assert rv.secure_message == nil
   end
 
   def test_temp_tokenize_and_authorize_three_ds

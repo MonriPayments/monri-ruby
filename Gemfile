@@ -17,6 +17,7 @@ group :development do
   gem 'webmock', '>= 3.8.0'
 
   gem 'rubocop', '~> 1.43', require: false
+  gem 'simplecov', require: false, group: :test
 
   platforms :mri do
     gem 'byebug'
