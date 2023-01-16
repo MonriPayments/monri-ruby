@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require 'simplecov'
-SimpleCov.start
+SimpleCov.start do
+  add_filter '/vendor/'
+end
 require 'minitest/autorun'
 require 'monri'
 require 'securerandom'
@@ -144,6 +146,37 @@ class MonriTest < Minitest::Test
     assert rv.is_a?(Monri::Transactions::TransactionResponse)
     assert rv.transaction == nil
     assert rv.secure_message == nil
+  end
+
+  def test_transactions_card
+
+    rv = monri.transactions.transaction(
+      amount: 200,
+      currency: 'EUR',
+      transaction_type: 'purchase',
+      order_number: SecureRandom.hex,
+      order_info: "Info #{SecureRandom.hex}",
+      ch_address: 'Address',
+      ch_city: 'Sarajevo',
+      ch_country: 'BA',
+      ch_email: 'test@monri.com',
+      ch_full_name: 'Test Test',
+      ch_phone: '+38761000111',
+      ch_zip: '71000',
+      language: 'en',
+      ip: '127.0.0.1',
+      pan: '4111111111111111',
+      cvv: '123',
+      expiration_date: '3112' # YYMM
+    )
+    assert !rv.failed?
+
+    assert rv.is_a?(Monri::Transactions::TransactionResponse)
+    assert rv.transaction != nil
+    assert rv.secure_message == nil
+    assert rv.exception == nil
+    assert rv.transaction.is_a?(Monri::Transactions::Transaction)
+    assert rv.transaction.id != nil
   end
 
   def test_temp_tokenize_and_authorize_three_ds
