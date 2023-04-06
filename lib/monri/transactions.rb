@@ -74,6 +74,13 @@ module Monri
       trx_management(params.merge(transaction_type: 'refund'))
     end
 
+    def capture(params)
+      unless params.is_a?(Hash)
+        raise Monri::Errors::InvalidArgumentsError.new('First parameter - params, should be a Hash')
+      end
+      trx_management(params.merge(transaction_type: 'capture'))
+    end
+
     private
 
     # @param [Hash] params
