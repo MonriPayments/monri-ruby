@@ -137,10 +137,10 @@ class MonriTest < Minitest::Test
       ch_zip: '71000',
       language: 'en',
       ip: '127.0.0.1'
-      )
+    )
     assert rv.failed?
     assert rv.errors.is_a?(Array)
-    assert rv.errors.any? {|x| x == "Pan can't be blank"}
+    assert rv.errors.any? { |x| x == "Pan can't be blank" }
     assert rv.exception != nil
 
     assert rv.is_a?(Monri::Transactions::TransactionResponse)
@@ -223,6 +223,116 @@ class MonriTest < Minitest::Test
     assert rv.secure_message.id != nil
     assert rv.secure_message.acs_url != nil
     assert rv.secure_message.authenticity_token != nil
+  end
+
+  def test_transactions_void
+    req = {
+      amount: 200,
+      currency: 'EUR',
+      transaction_type: 'authorize',
+      order_number: "a-v-#{SecureRandom.hex}",
+      order_info: "Info #{SecureRandom.hex}",
+      ch_address: 'Address',
+      ch_city: 'Sarajevo',
+      ch_country: 'BA',
+      ch_email: 'test@monri.com',
+      ch_full_name: 'Test Test',
+      ch_phone: '+38761000111',
+      ch_zip: '71000',
+      language: 'en',
+      ip: '127.0.0.1',
+      pan: '4111111111111111',
+      cvv: '123',
+      expiration_date: '3112' # YYMM
+    }
+    rv = monri.transactions.transaction(req)
+    assert !rv.failed?
+
+    assert rv.is_a?(Monri::Transactions::TransactionResponse)
+    assert rv.transaction != nil
+    assert rv.secure_message == nil
+    assert rv.exception == nil
+    assert rv.transaction.is_a?(Monri::Transactions::Transaction)
+    assert rv.transaction.id != nil
+
+    rv = monri.transactions.void(order_number: req[:order_number], amount: req[:amount], currency: req[:currency])
+    assert rv.is_a?(Monri::Transactions::TransactionResponse)
+    assert rv.transaction != nil
+    assert_equal 'approved', rv.transaction.status
+  end
+
+  def test_transactions_refund
+    req = {
+      amount: 200,
+      currency: 'EUR',
+      transaction_type: 'purchase',
+      order_number: "p-r-#{SecureRandom.hex}",
+      order_info: "Info #{SecureRandom.hex}",
+      ch_address: 'Address',
+      ch_city: 'Sarajevo',
+      ch_country: 'BA',
+      ch_email: 'test@monri.com',
+      ch_full_name: 'Test Test',
+      ch_phone: '+38761000111',
+      ch_zip: '71000',
+      language: 'en',
+      ip: '127.0.0.1',
+      pan: '4111111111111111',
+      cvv: '123',
+      expiration_date: '3112' # YYMM
+    }
+    rv = monri.transactions.transaction(req)
+    assert !rv.failed?
+
+    assert rv.is_a?(Monri::Transactions::TransactionResponse)
+    assert rv.transaction != nil
+    assert rv.secure_message == nil
+    assert rv.exception == nil
+    assert rv.transaction.is_a?(Monri::Transactions::Transaction)
+    assert rv.transaction.id != nil
+
+    rv = monri.transactions.refund(order_number: req[:order_number], amount: req[:amount], currency: req[:currency])
+    assert rv.is_a?(Monri::Transactions::TransactionResponse)
+    assert rv.transaction != nil
+  end
+
+  def test_transactions_authorize_capture_refund
+    req = {
+      amount: 200,
+      currency: 'EUR',
+      transaction_type: 'authorize',
+      order_number: "a-c-r-#{SecureRandom.hex}",
+      order_info: "Info a-c-r-#{SecureRandom.hex}",
+      ch_address: 'Address',
+      ch_city: 'Sarajevo',
+      ch_country: 'BA',
+      ch_email: 'test@monri.com',
+      ch_full_name: 'Test Test',
+      ch_phone: '+38761000111',
+      ch_zip: '71000',
+      language: 'en',
+      ip: '127.0.0.1',
+      pan: '4111111111111111',
+      cvv: '123',
+      expiration_date: '3112' # YYMM
+    }
+    rv = monri.transactions.transaction(req)
+    assert !rv.failed?
+
+    assert rv.is_a?(Monri::Transactions::TransactionResponse)
+    assert rv.transaction != nil
+    assert rv.secure_message == nil
+    assert rv.exception == nil
+    assert rv.transaction.is_a?(Monri::Transactions::Transaction)
+    assert rv.transaction.id != nil
+
+    rv = monri.transactions.capture(order_number: req[:order_number], amount: req[:amount], currency: req[:currency])
+    assert rv.is_a?(Monri::Transactions::TransactionResponse)
+    assert rv.transaction != nil
+
+    rv = monri.transactions.refund(order_number: req[:order_number], amount: req[:amount], currency: req[:currency])
+    assert rv.is_a?(Monri::Transactions::TransactionResponse)
+    assert rv.transaction != nil
   end
 
 end
